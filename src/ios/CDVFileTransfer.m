@@ -457,6 +457,13 @@ static CFIndex WriteDataToStream(NSData* data, CFWriteStreamRef stream)
 
     NSMutableURLRequest* req = [NSMutableURLRequest requestWithURL:sourceURL];
     [self applyRequestHeaders:headers toRequest:req];
+    // if target file exists continue downloading
+
+    if ([[NSFileManager defaultManager] fileExistsAtPath:[targetURL path]]) {
+        unsigned long long fileSize = [[NSFileManager defaultManager] attributesOfItemAtPath:[targetURL path] error:nil].fileSize;
+        NSString* rangeHeaderValue = [NSString stringWithFormat:@"bytes=%llu-", fileSize];
+        [req addValue:rangeHeaderValue forHTTPHeaderField:@"Range"];
+    }
 
     CDVFileTransferDelegate* delegate = [[CDVFileTransferDelegate alloc] init];
     delegate.command = self;
@@ -666,7 +673,7 @@ static CFIndex WriteDataToStream(NSData* data, CFWriteStreamRef stream)
     }
 
     if (self.direction == CDV_TRANSFER_DOWNLOAD) {
-        [self removeTargetFile];
+//        [self removeTargetFile];
     }
 }
 
@@ -742,13 +749,19 @@ static CFIndex WriteDataToStream(NSData* data, CFWriteStreamRef stream)
             }
             return;
         }
-        // create target file
-        if ([[NSFileManager defaultManager] createFileAtPath:filePath contents:nil attributes:nil] == NO) {
-            [self cancelTransferWithError:connection errorMessage:@"Could not create target file"];
-            return;
-        }
         // open target file for writing
         self.targetFileHandle = [NSFileHandle fileHandleForWritingAtPath:filePath];
+        if (self.targetFileHandle != nil) {
+            [self.targetFileHandle seekToEndOfFile];
+        } else {
+            // create target file
+            if ([[NSFileManager defaultManager] createFileAtPath:filePath contents:nil attributes:nil] == NO) {
+                [self cancelTransferWithError:connection errorMessage:@"Could not create target file"];
+                return;
+            }
+            self.targetFileHandle = [NSFileHandle fileHandleForWritingAtPath:filePath];
+        }
+
         if (self.targetFileHandle == nil) {
             [self cancelTransferWithError:connection errorMessage:@"Could not open target file for writing"];
         }
@@ -794,10 +807,12 @@ static CFIndex WriteDataToStream(NSData* data, CFWriteStreamRef stream)
         if (!lengthComputable && (self.entityLengthRequest != nil)) {
             return;
         }
+        unsigned long long fileSize = [[NSFileManager defaultManager] attributesOfItemAtPath:[self targetFilePath] error:nil].fileSize;
+
         NSMutableDictionary* downloadProgress = [NSMutableDictionary dictionaryWithCapacity:3];
         [downloadProgress setObject:[NSNumber numberWithBool:lengthComputable] forKey:@"lengthComputable"];
-        [downloadProgress setObject:[NSNumber numberWithLongLong:self.bytesTransfered] forKey:@"loaded"];
-        [downloadProgress setObject:[NSNumber numberWithLongLong:self.bytesExpected] forKey:@"total"];
+        [downloadProgress setObject:[NSNumber numberWithLongLong:self.bytesTransfered + fileSize] forKey:@"loaded"];
+        [downloadProgress setObject:[NSNumber numberWithLongLong:self.bytesExpected + fileSize] forKey:@"total"];
         CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:downloadProgress];
         [result setKeepCallbackAsBool:true];
         [self.command.commandDelegate sendPluginResult:result callbackId:callbackId];

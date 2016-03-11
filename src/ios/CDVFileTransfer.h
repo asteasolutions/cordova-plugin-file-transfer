@@ -25,28 +25,20 @@ enum CDVFileTransferError {
     FILE_NOT_FOUND_ERR = 1,
     INVALID_URL_ERR = 2,
     CONNECTION_ERR = 3,
-    CONNECTION_ABORTED = 4,
+    CONNECTION_PAUSED = 4,
     NOT_MODIFIED = 5
 };
 typedef int CDVFileTransferError;
-
-enum CDVFileTransferDirection {
-    CDV_TRANSFER_UPLOAD = 1,
-    CDV_TRANSFER_DOWNLOAD = 2,
-};
-typedef int CDVFileTransferDirection;
 
 // Magic value within the options dict used to set a cookie.
 extern NSString* const kOptionsKeyCookie;
 
 @interface CDVFileTransfer : CDVPlugin {}
 
-- (void)upload:(CDVInvokedUrlCommand*)command;
 - (void)download:(CDVInvokedUrlCommand*)command;
 - (NSString*)escapePathComponentForUrlString:(NSString*)urlString;
 
 // Visible for testing.
-- (NSURLRequest*)requestForUploadCommand:(CDVInvokedUrlCommand*)command fileData:(NSData*)fileData;
 - (NSMutableDictionary*)createFileTransferError:(int)code AndSource:(NSString*)source AndTarget:(NSString*)target;
 
 - (NSMutableDictionary*)createFileTransferError:(int)code
@@ -69,7 +61,6 @@ extern NSString* const kOptionsKeyCookie;
 @property (nonatomic, strong) NSDictionary* responseHeaders;
 @property (nonatomic, assign) UIBackgroundTaskIdentifier backgroundTaskID;
 @property (nonatomic, strong) CDVFileTransfer* command;
-@property (nonatomic, assign) CDVFileTransferDirection direction;
 @property (nonatomic, strong) NSURLConnection* connection;
 @property (nonatomic, copy) NSString* callbackId;
 @property (nonatomic, copy) NSString* objectId;

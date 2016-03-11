@@ -6,16 +6,7 @@
     "id": "cordova-plugin-file-transfer",
     "platforms": [
       "android",
-      "amazon-fireos",
-      "ubuntu",
-      "blackberry10",
-      "ios",
-      "wp7",
-      "wp8",
-      "windows8",
-      "windows",
-      "firefoxos",
-      "browser"
+      "ios"
     ]
   },
   "scripts": {
@@ -33,16 +24,7 @@
     "transfer",
     "ecosystem:cordova",
     "cordova-android",
-    "cordova-amazon-fireos",
-    "cordova-ubuntu",
-    "cordova-blackberry10",
-    "cordova-ios",
-    "cordova-wp7",
-    "cordova-wp8",
-    "cordova-windows8",
-    "cordova-windows",
-    "cordova-firefoxos",
-    "cordova-browser"
+    "cordova-ios"
   ],
   "peerDependencies": {
     "cordova-plugin-file": "^3.0.0"

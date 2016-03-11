@@ -764,6 +764,8 @@ static CFIndex WriteDataToStream(NSData* data, CFWriteStreamRef stream)
 
         if (self.targetFileHandle == nil) {
             [self cancelTransferWithError:connection errorMessage:@"Could not open target file for writing"];
+        } else {
+            self.fileSize = [[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil].fileSize;
         }
         DLog(@"Streaming to file %@", filePath);
     }
@@ -807,12 +809,11 @@ static CFIndex WriteDataToStream(NSData* data, CFWriteStreamRef stream)
         if (!lengthComputable && (self.entityLengthRequest != nil)) {
             return;
         }
-        unsigned long long fileSize = [[NSFileManager defaultManager] attributesOfItemAtPath:[self targetFilePath] error:nil].fileSize;
 
         NSMutableDictionary* downloadProgress = [NSMutableDictionary dictionaryWithCapacity:3];
         [downloadProgress setObject:[NSNumber numberWithBool:lengthComputable] forKey:@"lengthComputable"];
-        [downloadProgress setObject:[NSNumber numberWithLongLong:self.bytesTransfered + fileSize] forKey:@"loaded"];
-        [downloadProgress setObject:[NSNumber numberWithLongLong:self.bytesExpected + fileSize] forKey:@"total"];
+        [downloadProgress setObject:[NSNumber numberWithLongLong:self.bytesTransfered + self.fileSize] forKey:@"loaded"];
+        [downloadProgress setObject:[NSNumber numberWithLongLong:self.bytesExpected + self.fileSize] forKey:@"total"];
         CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:downloadProgress];
         [result setKeepCallbackAsBool:true];
         [self.command.commandDelegate sendPluginResult:result callbackId:callbackId];

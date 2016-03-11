@@ -289,7 +289,7 @@
 
 @implementation CDVFileTransferDelegate
 
-@synthesize callbackId, connection = _connection, source, target, responseData, responseHeaders, command, bytesTransfered, bytesExpected, direction, responseCode, objectId, targetFileHandle, filePlugin;
+@synthesize callbackId, connection = _connection, source, target, responseData, responseHeaders, command, bytesTransfered, bytesExpected, responseCode, objectId, targetFileHandle, filePlugin;
 
 - (void)connectionDidFinishLoading:(NSURLConnection*)connection
 {

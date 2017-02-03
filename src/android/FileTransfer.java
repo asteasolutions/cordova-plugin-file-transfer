@@ -173,8 +173,7 @@ public class FileTransfer extends CordovaPlugin {
             return true;
         } else if (action.equals("pause")) {
             String objectId = args.getString(0);
-            pause(objectId);
-            callbackContext.success();
+            pause(objectId, callbackContext);
             return true;
         }
         return false;
@@ -644,7 +643,7 @@ public class FileTransfer extends CordovaPlugin {
     /**
      * Pause an ongoing upload or download.
      */
-    private void pause(String objectId) {
+    private void pause(String objectId, final CallbackContext callback) {
         final RequestContext context;
         synchronized (activeRequests) {
             context = activeRequests.remove(objectId);
@@ -662,6 +661,8 @@ public class FileTransfer extends CordovaPlugin {
                                 context.connection.disconnect();
                             } catch (Exception e) {
                                 Log.e(LOG_TAG, "CB-8431 Catch workaround for fatal exception", e);
+                            } finally {
+                                callback.success();
                             }
                         }
                     }

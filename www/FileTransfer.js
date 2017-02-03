@@ -232,8 +232,8 @@ FileTransfer.prototype.download = function(source, target, successCallback, erro
  * Pauses the ongoing file transfer on this object. The original error
  * callback for the file transfer will be called if necessary.
  */
-FileTransfer.prototype.pause = function() {
-    exec(null, null, 'FileTransfer', 'pause', [this._id]);
+FileTransfer.prototype.pause = function(callback) {
+    exec(callback, null, 'FileTransfer', 'pause', [this._id]);
 };
 
 module.exports = FileTransfer;

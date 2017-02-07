@@ -107,7 +107,8 @@
         if (delegate != nil) {
             [delegate cancelTransfer:delegate.connection];
             CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:[self createFileTransferError:CONNECTION_PAUSED AndSource:delegate.source AndTarget:delegate.target]];
-            [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:delegate.callbackId];
+            [self.commandDelegate sendPluginResult:result callbackId:delegate.callbackId];
+            [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:command.callbackId];
         }
     }
 }
